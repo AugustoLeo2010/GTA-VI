@@ -1,50 +1,74 @@
+
 package dt2.gtavi.Controller;
 
 import dt2.gtavi.entities.Personagem;
 import dt2.gtavi.repository.PersonagemRepository;
+import jakarta.validation.Valid;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
-@RequestMapping("api/personagem")
+@RequestMapping("/api/personagens")
 public class PersonagemController {
 
     private final PersonagemRepository repository;
+
     public PersonagemController(PersonagemRepository repository) {
         this.repository = repository;
     }
 
-    @PostMapping
-    public String criarPersonagem(@RequestBody Personagem lucas){
-        try {
-            return "Salvo com sucesso" + repository.save(lucas);
-        }
-        catch (Exception e) {
-            return"Dados incorretos";
-        }
-    }
-
     @GetMapping
-    public List<Personagem> mostrar(){
+    public List<Personagem> listar() {
         return repository.findAll();
     }
 
-    @DeleteMapping("/{id}")
-    public void buscarId(@PathVariable int id){
-        repository.findById(id);
+    @GetMapping("/{id}")
+    public ResponseEntity<Personagem> buscarPorId(@PathVariable Integer id) {
+        return repository.findById(id)
+                .map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.<Personagem>notFound().build());
+    }
+
+    @PostMapping
+    public ResponseEntity<Personagem> criar(@Valid @RequestBody Personagem registro) {
+        Personagem salvo = repository.save(registro);
+
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(salvo);
     }
 
     @PutMapping("/{id}")
-    public void atualizar(@PathVariable int id,
-                           @RequestBody Personagem p) {
-        Personagem personagem = repository.getReferenceById(id);
-        personagem.setNome(p.getNome());
-        personagem.setApelido(p.getApelido());
-        personagem.setCategoria(p.getCategoria());
-        personagem.setDescricao(p.getDescricao());
-        personagem.setImagem(p.getImagem());
+    public ResponseEntity<Personagem> atualizar(
+            @PathVariable Integer id,
+            @Valid @RequestBody Personagem dados) {
 
+        return repository.findById(id).map(registro -> {
 
+            registro.setNome(dados.getNome());
+            registro.setApelido(dados.getApelido());
+            registro.setCategoria(dados.getCategoria());
+            registro.setImagem(dados.getImagem());
+            registro.setDescricao(dados.getDescricao());
+
+            return ResponseEntity.ok(repository.save(registro));
+
+        }).orElseGet(() -> ResponseEntity.<Personagem>notFound().build());
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> excluir(@PathVariable Integer id) {
+
+        if (!repository.existsById(id)) {
+            return ResponseEntity.notFound().build();
+        }
+
+        repository.deleteById(id);
+
+        return ResponseEntity.noContent().build();
     }
 }
+

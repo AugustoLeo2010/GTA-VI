@@ -7,13 +7,13 @@ public class Personagem {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
     private String nome;
-    private int apelido;
+    private String apelido;
     private String categoria;
     @Column(columnDefinition = "TEXT")
     private String imagem;
     private String descricao;
 
-    public Personagem(int id, String nome, int apelido, String categoria, String imagem, String descricao) {
+    public Personagem(int id, String nome, String apelido, String categoria, String imagem, String descricao) {
         this.id = id;
         this.nome = nome;
         this.apelido = apelido;
@@ -22,7 +22,7 @@ public class Personagem {
         this.descricao = descricao;
     }
 
-    public Personagem(String nome, int apelido, String categoria, String imagem, String descricao) {
+    public Personagem(String nome, String apelido, String categoria, String imagem, String descricao) {
         this.nome = nome;
         this.apelido = apelido;
         this.categoria = categoria;
@@ -50,13 +50,9 @@ public class Personagem {
         this.nome = nome;
     }
 
-    public int getApelido() {
-        return apelido;
-    }
+    public String getApelido() {return apelido;}
 
-    public void setApelido(int apelido) {
-        this.apelido = apelido;
-    }
+    public void setApelido(String apelido) {this.apelido = apelido;}
 
     public String getCategoria() {
         return categoria;
